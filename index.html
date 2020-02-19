@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>Technical Documentation Project - Pascal Types</title>
+        <link rel="stylesheet" href="main.css">
+    </head>
+
+    <body>        
+        <nav id="navbar">
+            <ul id="navbar-links">
+                <header>Pascal types documentation</header>
+                <li><a class="nav-link" href="#Base_types">Base types</a></li>
+                <li><a class="nav-link" href="#Character_types">Character types</a></li>
+                <li><a class="nav-link" href="#Structured_types">Structured types</a></li>
+                <li><a class="nav-link" href="#Pointers">Pointers</a></li>
+                <li><a class="nav-link" href="#Forward_type_declarations">Forward type declarations</a></li>
+                <li><a class="nav-link" href="#Procedural_types">Procedural types</a></li>
+                <li><a class="nav-link" href="#Managed_types">Managed types</a></li>
+                <li><a class="nav-link" href="#References">References</a></li>
+            </ul>
+        </nav>        
+    
+    <main id="main-doc">
+            
+        <section class="main-section" id="Base_types">
+            <header>Base types</header>
+            <p>The base or simple types of Free Pascal are the Delphi types.</p>
+            <p>A list of some pre-defined integer types is:</p>
+            <ul>
+                <li>Integer</li>
+                <li>Word</li>
+                <li>Byte</li>
+                <li>Char</li>
+                <li>Boolean</li>
+            </ul>
+            <p>All decimal constants which do no fit within the -2147483648..2147483647 range are silently and
+automatically parsed as 64-bit integer constants as of version 1.9.0. Earlier versions would convert it
+to a real-typed constant.</p>
+            <p>In Free Pascal, boolean expressions are by default always evaluated in such a way that when the
+result is known, the rest of the expression will no longer be evaluated: this is called short-cut boolean
+evaluation.</p>
+            <p>Enumeration types are supported in Free Pascal. On top of the Turbo Pascal implementation, Free
+Pascal allows also a C-style extension of the enumeration type, where a value is assigned to a particular element of the enumeration list.</p>            
+            <code>
+    Type
+      EnumType = (one, two, three, forty := 40, thirty := 30);
+            </code>            
+            <code>
+    Type
+    {$PACKENUM 4}
+      LargeEnum = ( BigOne, BigTwo, BigThree );
+    {$PACKENUM 1}
+      SmallEnum = ( one, two, three );
+    Var S : SmallEnum;
+      L : LargeEnum;
+    begin
+      WriteLn (’Small enum : ’,SizeOf(S));
+      WriteLn (’Large enum : ’,SizeOf(L));
+    end.
+            </code>                
+        </section>
+        
+        <section class="main-section" id="Character_types">
+            <header>Character types</header>
+            <p>Free Pascal supports the type <code>Char</code>. A <code>Char</code> is exactly 1 byte in size, and contains one ASCII
+character.</p>
+            <p>A character constant can be specified by enclosing the character in single quotes, as follows : ’a’ or
+’A’ are both character constants.</p>
+            <p>A character can also be specified by its character value (commonly an ASCII code), by preceding the
+ordinal value with the number symbol (#). For example specifying <code>#65</code> would be the same as ’<code>A</code>’.</p>
+            <p>Also, the caret character (<code>^</code>) can be used in combination with a letter to specify a character with
+ASCII value less than 27. Thus <code>^G</code> equals <code>#7</code> - G is the seventh letter in the alphabet. The compiler
+is rather sloppy about the characters it allows after the caret, but in general one should assume only
+letters.</p>
+            <p>When the single quote character must be represented, it should be typed two times successively, thus
+’’’’ represents the single quote character.</p>
+            <p>To distinguish <code>Char</code> from <code>WideChar</code>, the system unit also defines the <code>AnsiChar</code> type, which is
+the same as the char type. In future versions of FPC, the <code>Char</code> type may become an alias for either
+<code>WideChar</code> or <code>AnsiChar</code>.</p>                
+        </section>
+        
+        <section class="main-section" id="Structured_types">
+            <header>Structured types</header>
+            <p>When a structured type is declared, no assumptions should be made about the internal position of the
+elements in the type. The compiler will lay out the elements of the structure in memory as it thinks
+will be most suitable. That is, the order of the elements will be kept, but the location of the elements
+are not guaranteed, and is partially governed by the <code>$PACKRECORDS</code> directive</p>
+            <p>When the range of the array is included in the array definition, it is called a static array. Trying to
+access an element with an index that is outside the declared range will generate a run-time error (if
+range checking is on). The following is an example of a valid array declaration:</p>
+            <code>
+    Type
+      RealArray = Array [1..100] of Real;</code>
+            <p>Free Pascal supports fixed records and records with variant parts. The following are valid record type declarations:</p>
+            <code>
+    Type
+      Point = Record
+              X,Y,Z : Real;
+              end;
+    RPoint = Record
+            Case Boolean of
+            False : (X,Y,Z : Real);
+            True : (R,theta,phi : Real);
+            end;
+    BetterRPoint = Record
+            Case UsePolar : Boolean of
+            False : (X,Y,Z : Real);
+            True : (R,theta,phi : Real);
+            end;
+            </code>                
+        </section>
+        
+        <section class="main-section" id="Pointers">
+            <header>Pointers</header>
+            <p>Free Pascal supports the use of pointers. A variable of the pointer type contains an address in memory,
+where the data of another variable may be stored.</p>
+            <p>Pointers are typed, which means that they point to a particular kind of data. The type of this data must be known at compile time.</p>
+            <p>Dereferencing the pointer (denoted by adding <code>ˆ</code> after the variable name) behaves then like a variable. This variable has the type declared in the pointer declaration, and the variable is stored in the address that is pointed to by the pointer variable. Consider the following example:</p>
+            <code>
+    Program pointers;
+    type            
+      Buffer = String[255];
+      BufPtr = ^Buffer;
+    Var B : Buffer;
+        BP : BufPtr;
+        PP : Pointer;
+    etc..
+            </code>                
+        </section>
+        
+        <section class="main-section" id="Forward_type_declarations">
+            <header>Forward type declarations</header>
+            <p>Programs often need to maintain a linked list of records. Each record then contains a pointer to the
+next record (and possibly to the previous record as well). For type safety, it is best to define this
+pointer as a typed pointer, so the next record can be allocated on the heap using the <code>New</code> call.</p>             
+        </section>
+        
+        <section class="main-section" id="Procedural_types">
+            <header>Procedural types</header>
+            <p>Free Pascal has support for procedural types, although it differs a little from the Turbo Pascal or Delphi implementation of them. The type declaration remains the same.</p>                
+        </section>
+        
+        <section class="main-section" id="Managed_types">
+            <header>Managed types</header>
+            <p>By default, pascal types are unmanaged. That means that variables must be explicitly initialized,
+finalized, memory allocated and so on. However, in Object Pascal, several types are managed, which
+means that the compiler initializes and finalizes variables of this type: this is necessary, for instance
+for reference counted data types.</p>
+            <p>The following types are managed:</p>
+            <ul>
+                <li>AnsiString They are initialized to <code>Nil</code>.</li>
+                <li>UnicodeString They are initialized to <code>Nil</code>.</li>
+                <li>WideString They are initialized to <code>Nil</code>.</li>
+                <li>Interface They are initialized to <code>Nil</code>.</li>
+                <li>Dynamic arrays They are initialized to <code>Nil</code>.</li>            
+            </ul>                
+        </section>
+        
+        <section class="main-section" id="References">
+            <header>References</header>
+            <p>If you would like to learn more about Pascal programming, you can find the full documentation here:</p>
+            <a href="https://www.freepascal.org/docs-html/current/ref/ref.html">Resource of this documentation</a>        
+            <p>...or you can learn more watching this video tutorial:</p>
+            <div>
+                <iframe id="video" width="560" height="315" align="middle" src="https://www.youtube.com/embed/hPmJB0mS-GA" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+            </div>
+        </section>
+        
+    </main>
+        
+    <script src="https://cdn.freecodecamp.org/testable-projects-fcc/v1/bundle.js"></script>
+    </body>
+
+</html>
